@@ -156,9 +156,6 @@ public function updateProfile(Request $request)
 
     $user->update($data);
 
-        // $user->name = $request->name;
-        // $user->email = $request->email;
-        // $user->save();
 
         return response()->json([
             'success' => true,
