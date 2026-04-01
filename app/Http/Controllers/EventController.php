@@ -75,11 +75,16 @@ public function index()
         ], 201);
 
     }
-
     public function show($id)
-{
-    $event = Event::with('user')->withCount('supports')->findOrFail($id); // with('user') ila bghiti t-3rfi chkun m-creayih
-    
+{ 
+    $userId = Auth::guard('sanctum')->id();
+
+    $event = Event::with('user')
+    ->withCount('supports')
+    ->WithExists(['supports as is_supported' => function ($query) use ($userId) {
+        $query->where('user_id' , $userId);
+    }])->FindOrFail($id);
+ 
 
     $event->image_url = $event->image ? asset('storage/' . $event->image) : null;
 
