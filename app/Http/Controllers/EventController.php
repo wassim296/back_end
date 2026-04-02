@@ -171,5 +171,20 @@ public function myEvents() {
         ]);
     }
 
+    public function threeEvents () {
+
+    $events = Event::with('user')->withCount('supports')->orderBy('created_at', 'desc')->limit(3)->get();
+
+        if($events){
+     $events->map(function ($event){
+        $event->image_url = $event->image ? asset('storage/'.$event->image) : null ;
+        return  $event; 
+        });
+        }
+    
+    return response()->json([
+        'events' =>  $events
+    ]);
+    }
 
 }
