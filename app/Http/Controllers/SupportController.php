@@ -53,6 +53,13 @@ $events = Event::with('user')
         }
     ])
     ->get();
+
+            if($events){
+     $events->map(function ($event){
+        $event->image_url = $event->image ? asset('storage/'.$event->image) : null ;
+        return  $event; 
+        });
+        }
         
         return response()->json([
             'events' => $events 
