@@ -11,6 +11,8 @@ protected $fillable = [
     'description',
     'image',
     'date_event',
+    'heure',         
+    'nombre_places', 
     'lieu',
     'user_id'
     ];

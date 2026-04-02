@@ -43,38 +43,39 @@ public function index()
     ], 200);
      }
 
-    public function store(Request $request){
-
-            $user = Auth::user();
-
-            if($user->role !== 'admin' && $user->role !== 'professor' ){
-            return response()->json([
-                'message' => 'action non autorisee',
-            ],403);
-            }
-
-        $request->validate([
-            'title' => 'required|string|max:150',
-            'description' => 'required|max:255',
-            'date_event' => 'required|date|after:today',
-            'lieu' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
-        ]);
-
-        $data = $request->all();
-
-        if($request->hasFile('image')){
-            $path = $request->file('image')->store('events' , 'public');
-            $data['image'] = $path;
-        };
-        $event = Event::create($data);
-
-        return response()->json([
-            'message' => 'Event ajouté avec succès',
-            'event' => $event
-        ], 201);
-
+    public function store(Request $request) {
+    $user = Auth::user();
+    if($user->role !== 'admin' && $user->role !== 'professor') {
+        return response()->json(['message' => 'action non autorisee'], 403);
     }
+
+    $request->validate([
+        'title' => 'required|string|max:150',
+        'description' => 'required|max:255',
+        'date_event' => 'required|date|after:today',
+        'heure' => 'required', 
+        'nombre_places' => 'required|integer|min:1', 
+        'lieu' => 'required|string|max:255',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+    ]);
+
+    $data = $request->all();
+    $data['user_id'] = $user->id; 
+
+    if($request->hasFile('image')){
+        $path = $request->file('image')->store('events' , 'public');
+        $data['image'] = $path;
+    }
+    
+    $event = Event::create($data);
+
+    return response()->json([
+        'message' => 'Event ajouté avec succès',
+        'event' => $event
+    ], 201);
+}
+
+
     public function show($id)
 { 
     $userId = Auth::guard('sanctum')->id();

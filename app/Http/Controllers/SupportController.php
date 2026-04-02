@@ -8,31 +8,36 @@ use App\Models\Support;
 
 class SupportController extends Controller
 {
-    public function toggleSupport(Request $request)
-    {
-        $request->validate([
-            'event_id' => 'required',
-        ]);
+public function toggleSupport(Request $request)
+{
+    $request->validate(['event_id' => 'required|exists:events,id']);
 
-        $userId = auth()->id(); 
-        $eventId = $request->event_id;
+    $userId = auth()->id(); 
+    $eventId = $request->event_id;
+    $event = Event::withCount('supports')->findOrFail($eventId);
 
-        $support = Support::where('user_id', $userId)
-        ->where('event_id', $eventId)
-        ->first();
+    $support = Support::where('user_id', $userId)->where('event_id', $eventId)->first();
 
-        if ($support) {
-            $support->delete();
-            return response()->json(['message' => 'Support removed']);
-        }
-
-        Support::create([
-            'user_id' => $userId,
-            'event_id' => $eventId
-        ]);
-
-        return response()->json(['status' => 'added', 'message' => 'Soutien ajouté']);
+    if ($support) {
+        $support->delete();
+        return response()->json(['status' => 'removed', 'message' => 'Support removed']);
     }
+
+
+    if ($event->supports_count >= $event->nombre_places) {
+        return response()->json([
+            'status' => 'full',
+            'message' => 'Désolé, cet événement est complet !'
+        ], 400);
+    }
+
+    Support::create([
+        'user_id' => $userId,
+        'event_id' => $eventId
+    ]);
+
+    return response()->json(['status' => 'added', 'message' => 'Soutien ajouté']);
+}
 
     public function getMySupportedEvents() {
         $userId = auth()->id();
